@@ -1,0 +1,86 @@
+---
+title: "hw3"
+author: "Brett Santema   <br /> github: bsantema"
+date: "2/19/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+```
+
+```{r}
+data(tips, package="reshape2")
+summary(tips)
+```
+
+## How many parties did the waiter serve? Store the number in numParty and print.
+```{r}
+numParty = nrow(tips)
+print(numParty)
+```
+
+## What are the types of variables in the data frame tips? Include the code and also explain verbally.
+```{r}
+str(tips)
+```
+total_bill and tip are floating point numbers. Sex, smoker, day, and time are factors. size is an int. 
+
+## Create a vector named day containing the day of visits in tips. The factor levels should be ordered from Thursday to Sunday. Print the variable.
+```{r}
+day = levels(factor(tips$day, levels = c("Thursday", "Friday", "Saturday", "Sunday")))
+print(day)
+```
+
+## Create a data frame named female5 containing the meal paid by a female payer in a party with size greater than or euqal to 5. Print the data frame.
+```{r}
+female5 = tips[tips$sex == "Female" & tips$size >= 5, ]
+print(female5)
+```
+
+## How does the tipping amount (tip) depend on the overall bill (total_bill)? Use the ggplot2 package to make a chart. Describe the relationship in words.
+```{r}
+plot(tips$total_bill, tips$tip)
+```
+
+As can be seen by the scatterplot, tips increase as the total bill increases. This is likely because common courtesy is to tip 15% of the total bill. 
+
+## Describe at least two types of anomalies in the previous plot. What do they mean?
+One anomaly is a subset of people who are tipping a few dollars regardless of total bill. If you look at where tip equals 2 or 3 dollars, you can see a lot of points form a horizontal line. A few people tipped 2 dollars for a 30 dollar bill, and a few people tipped 3 dollars for close to 40 dollar bills.  
+
+Another anomaly is the very highest tip, which is a 10 dollar tip for a 50 dollar bill which can be seen in the top right. 
+
+## Introduce a variable tiprate into the data set which stands for the rate of tips. What is the average rate for tips? Explain verbally.
+```{r}
+tiprate = mean(tips$tip / tips$total_bill)
+print(tiprate)
+```
+
+The average rate for tips is 16%. This is calculated by dividing tip by total bill to get the percentage of the total bill that was tipped, and averaging that for every party. The result of 16 percent is in line with the convention of tipping 15 percent. 
+
+## Make a boxplot of the tip rate by time. The x-axis should be ordered by lunch and then dinner. Use ggplot2 to make a chart. Verbally explain the chart.
+```{r}
+tips$tip_rate = (tips$tip / tips$total_bill)
+boxplot(tip_rate~time, data = tips)
+```
+
+A conclusion that can be drawn from the boxplot is that dinner has a wider range of tips, notably on the high end. This is probably because dinner tends to be more expensive as it is typically a larger meal and people are more likely to order drinks, so the larger bill will lead to potentially higher tips. 
+
+## How does smoking behavior and gender of the person who pays impact the relationship between tip and total bill? Find a visualization that incorporates all four variables. Interpret the result.
+```{r}
+ggplot(tips, aes(x=sex, y=tip_rate, fill=smoker)) + 
+    geom_boxplot(varwidth=T) + 
+    labs(title="Box plot", 
+         subtitle="Tipping rates for males and females, smoker and non-smoker",
+         x="Sex",
+         y="Tipping rate")
+```
+
+There does not appear to be any significant different in the tipping rates for the 4 different groups, as the medians are all very close together. One interesting observation is that smokers seemed to have more variance, with more outliers on the high and low ends. 
+
+## Use ggplot2 to find a graphical summary of the relationship between day of the week and gender of the person paying the bill. What can you say about this relationship?
+```{r}
+ggplot(tips, aes(day, ..count..)) + geom_bar(aes(fill = sex), position = "dodge")
+```
+On weekdays (thurs/fri), men and women tend to be paying the bill the same amount. On saturday and sunday, however, men are paying the bill at a much higher rate, with around twice as many men paying bills on saturday and almost 3 times as many men paying bills on sunday. 
